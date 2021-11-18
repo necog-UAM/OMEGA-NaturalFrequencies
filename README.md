@@ -8,4 +8,4 @@ The natural frequencies of the resting human brain: an MEG-based atlas. BioRxiv.
 
 The main function is BATCH_OMEGA
 
-The main folder as well as subfolders should be added to the Matlab pat
+The main folder as well as subfolders should be added to the Matlab path
