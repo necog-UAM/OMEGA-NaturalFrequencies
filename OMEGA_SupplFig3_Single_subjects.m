@@ -85,8 +85,6 @@ load source_forward_10mm
 load source_inverse_10mm
 voxel_inside = find(source.inside==1);
 
-cd(figpath)
-
 for i=1:2
     figure('WindowState','maximized','Color',[1 1 1]);
     ct=1;
@@ -118,6 +116,6 @@ for i=1:2
         title(['sub' subs{s}])
         ct=ct+1;
     end
-    print('-dtiff','-r300',['Single_subject_NFmaps' num2str(i) '_title.tiff']);
+    print('-dtiff','-r300',['Single_subject_NFmaps' num2str(i) '.tiff']);
 end
 
