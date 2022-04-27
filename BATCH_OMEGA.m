@@ -64,7 +64,7 @@ rep = 'rep2'; OMEGA5_Kmeans_powsp (subs, sess, dpath, outpath, rep)
 % Repeat analysis for the whole sample ('tot', N=128), 'rep1', and 'rep2' (random subsamples of N/2)
 
 cfg = [];
-cfg.Nk   = 25;
+cfg.Nk   = 25;        % for control analyses, change this parameter to 5, 15, 25, 50, and 100
 cfg.Nvox = 1925;
 cfg.Ntr  = 150;
 cfg.Nsub = 128;
@@ -72,7 +72,17 @@ rep = 'tot';  OMEGA6_Kmeans_clustering (outpath, rep, cfg)
 
 cfg.Nsub = 128/2;
 rep = 'rep1'; OMEGA6_Kmeans_clustering (outpath, rep, cfg)         
-rep = 'rep2'; OMEGA6_Kmeans_clustering (outpath, rep, cfg)         
+rep = 'rep2'; OMEGA6_Kmeans_clustering (outpath, rep, cfg)    
+
+
+%% ----------- Validation of the number of clusters ---------------- %
+
+cfg = [];
+cfg.Nks  = [5 10 15 20 25 30 40 50 75 100 150];    % number of clusters to be tested
+cfg.Nrep = 5;                                      % number of repetitions of the cross-validation procedure
+rep = 'tot';  
+
+OMEGA6b_Kmeans_clustering_validation (outpath, rep, cfg)
 
 
 %% ---------------------- FIGURE 2 --------------------------- %
@@ -96,19 +106,45 @@ cfg.fig_gamma = 0;          % Supplementary Figure 1
 
 OMEGA_Figure2 (outpath, figpath, rep, cfg) 
 
+% Control analysis: correlation between EOG and delta orbitofrontal activity 
+
+[R_blinks, P_blinks, R_saccs, P_saccs] = OMEGA_Control_EOG_delta (subs, sess, rawpath, dpath, outpath);  
+
+
 %% ----------- Computation of natural frequencies for each voxel and AAL region ---------------- %
 
 replicates = {'rep1','rep2','tot'};   
 outpath    = 'D:\OMEGA-NaturalFrequencies\results\';      
 
+Nks = [5, 15, 25, 50, 100];
+
+% badks: clusters with peaks > 30 Hz located outside the brain
+badks{1} = 5;
+badks{2} = [13:15];
+badks{3} = [20:25];
+badks{4} = [9 15 17 24 28 32 36 37 42:50];
+badks{5} = [7 12 13 18 25 26 31 35 38 46 52 53 60 63 66 71 73 79 84:100];
+
+i= 3;                         % initial number of clusters: 25
 cfg        = [];
-cfg.Nk     = 25;
+cfg.Nk     = Nks(i);
 cfg.Nvox   = 1925;
 cfg.Nsub   = 128;
 cfg.Nboot  = 500;       
 cfg.bootci = 1;
+cfg.badk   = badks{i};
+cfg.rand_ci = 1;              % test if 95% CI is lower than expected under random conditions
+cfg.Nperm  = 1000;            % number of permutations for CI stats
+cfg.bimod  = 1;               % test the prevalence of unimodal/bimodal spectra (Figure 4)
+rep = 'tot';  OMEGA7_Naturalfreq (outpath, rep, cfg)     
 
-rep = 'tot';  OMEGA7_Naturalfreq (outpath, rep, cfg) 
+cfg        = [];
+cfg.Nk     = 25;
+cfg.Nvox   = 1925;
+cfg.Nsub   = 128;
+cfg.Nboot  = 500;
+cfg.bootci = 1;
+cfg.badk   = [21:25];
 rep = 'rep1'; OMEGA7_Naturalfreq (outpath, rep, cfg) 
 rep = 'rep2'; OMEGA7_Naturalfreq (outpath, rep, cfg) 
 
@@ -119,7 +155,8 @@ cd([outpath  'Nk25_10mm_' rep])
 mnicoord = [2,-62,38];
 [nf, nf_low, nf_upp ,aal] = NaturalFreq (mnicoord);
 
-%% ---------------------- FIGURES 3-4 --------------------------- %
+
+%% ---------------------- FIGURES 3 and 5 --------------------------- %
 % Plots of brain maps of natural frequencies for the whole sample and replicate samples
 
 replicates = {'rep1','rep2','tot','low95%CI','upp95%CI'};   
@@ -151,8 +188,31 @@ natfmu2 = natfmu;
 
 [R,P] = corrcoef(natfmu1,natfmu2)
 
+%% ----------- Single-subject contributions ---------------- %
 
-%% ---------------------- FIGURE 5 --------------------------- %
+cd([outpath  'Nk25_10mm_tot'])
+eval(sprintf('load kmeans_10mm_powsp_tot'))   
+eval(sprintf('load kmeans_10mm_Nk25_tot'))   
+clear powsptot D
+
+Nk = 25;
+Nsub = 128;
+propsub = NaN(Nk,Nsub);
+for k = 1:Nk
+    [idk] = find(idx==k);
+    for s = 1:Nsub
+        propsub(k,s) = 100*sum(ksub(idk)==s)./length(ksub(idk));
+    end
+end
+
+mn = min(propsub,[],2);
+mx = max(propsub,[],2);
+mean(mn),mean(mx),std(mn),std(mx)
+
+OMEGA_SupplFig3_single_subjects                 % Supplementary Figure 3: single-subject brain maps
+
+
+%% ---------------------- FIGURE 6 --------------------------- %
 % Spectral modes: z-values for each AAL region and frequency band
 
 replicates = {'rep1','rep2','tot'};   
@@ -165,5 +225,5 @@ cfg.Nk   = 25;
 cfg.Nvox = 1925;
 cfg.Nsub = 128;
 
-OMEGA_Figure5A (outpath, figpath, rep, cfg)
-OMEGA_Figure5B (outpath, figpath, rep, cfg)
+OMEGA_Figure6A (outpath, figpath, rep, cfg)
+OMEGA_Figure6B (outpath, figpath, rep, cfg)

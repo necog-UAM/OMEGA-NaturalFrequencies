@@ -12,12 +12,12 @@ function OMEGA6_Kmeans_clustering (outpath, rep, cfg)
 %% 6.1. Computation of K-means clustering
 
 % Read matrix with the power spectra of all subjects, time segments and voxels
+Nk = cfg.Nk;
 cd([outpath  'Nk25_10mm_' rep])
 fil = sprintf('load kmeans_10mm_powsp_%s',rep);   
 eval(fil)
 
 % K-means clustering
-Nk = cfg.Nk;
 [idx,C,sumd,D] = kmeans(powsptot,Nk,'Distance','cosine','Display','iter','Replicates',5,'MaxIter',200);
 
 
@@ -43,7 +43,7 @@ for k = 1:Nk
     end
 end
 
-cd([outpath  'Nk25_10mm_' rep])
+cd([outpath  'Nk' num2str(Nk) '_10mm_' rep])
 fil = sprintf('save kmeans_10mm_Nk%d_%s idx C sumd D Nvox propk -v7.3',Nk,rep)
 eval(fil)
 

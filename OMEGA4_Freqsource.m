@@ -87,10 +87,10 @@ end
 
 f         = 0.55:0.05:4.6;
 foi       = exp(f);                % logarithmically spaced frequencies
-t_ftimwin = 5./foi;              % time-window adapted to each frequency (5 cycles)
+t_ftimwin = 5./foi;                % time-window adapted to each frequency (5 cycles); change to 3 or 7 cycles for control analyses
 t_fstep   = 0.5;                   % sliding time-window (500 ms steps)
 
-bd   = t_ftimwin(1).*2;       % remove borders = 2*time-window
+bd   = t_ftimwin(1).*2;            % remove borders = 2*time-window
 bdpt = bd.*dataclean.fsample;
 
 Ntr  = 0;

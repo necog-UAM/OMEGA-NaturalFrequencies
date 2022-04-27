@@ -24,14 +24,14 @@ load source_inverse_10mm
 voxel_inside = find(source.inside==1);
     
 if strcmp(rep,'tot') || strcmp(rep,'rep1') || strcmp(rep,'rep2')
-    cd([outpath 'Nk25_10mm_' rep])
+    cd([outpath 'Nk' num2str(Nk) '_10mm_' rep])
     load natfreq 
 else
-    cd([outpath 'Nk25_10mm_tot'])
+    cd([outpath 'Nk' num2str(Nk) '_10mm_' tot])
     load natfreq 
 end
 
-cd([outpath 'Nk25_10mm_' rep])
+cd([outpath 'Nk' num2str(Nk) '_10mm_' rep])
 
 if cfg2.natfreq_fig == 1
     source2 = source;
@@ -75,11 +75,12 @@ if cfg2.natfreq_fig == 1
 end
 
 
+
 %% F3.2. Save nifti files containing the brain map of natural frequencies and 95% CI
 
 if cfg2.natfreq_nii == 1
     
-    cd([outpath 'Nk25_10mm_' rep])
+    cd([outpath 'Nk' num2str(Nk) '_10mm_' rep])
     format shortG             
     
     source2 = source;
