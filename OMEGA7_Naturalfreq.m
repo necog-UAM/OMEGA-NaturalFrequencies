@@ -73,7 +73,7 @@ if cfg2.bootci == 1
                 fcneigh(4) = find(propkzm(:,v+2)==max(propkzm(:,v+2)));
                 fc = mode(fcneigh);
             end
-            freqvoxs(v,s,:) = ff(fc);
+            freqvoxs(v,s,:) = ff(fc,:);
         end
     end
     
